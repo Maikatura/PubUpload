@@ -3,17 +3,20 @@
 @using Microsoft.AspNetCore.Components.Web
 @namespace FileUploader.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using FileUploader.Models
+@using Microsoft.Extensions.Options
+@inject IOptions<InstanceOptions> Instance
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Gock - Secure file hosting with instant sharing" />
+    <meta name="description" content="@Instance.Value.Name - @Instance.Value.Tagline" />
     <meta name="theme-color" content="#0a0a0c" />
     <base href="~/" />
     <link rel="icon" href="favicon.png">
-    <title>Gock - Secure File Hosting</title>
+    <title>@Instance.Value.Name - @Instance.Value.Tagline</title>
     <link rel="stylesheet" href="app.css" asp-append-version="true" />
     <link rel="modulepreload" href="js/uploader.js" asp-append-version="true" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />

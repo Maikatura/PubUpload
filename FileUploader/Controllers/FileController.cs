@@ -4,6 +4,7 @@ using FileUploader.Models;
 using FileUploader.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace FileUploader.Controllers;
 
@@ -26,6 +27,7 @@ public class FileController : ControllerBase
     private readonly ShortCodeService myShortCodeService;
     private readonly MetadataStripperService myMetadataStripper;
     private readonly ILogger<FileController> myLogger;
+    private readonly InstanceOptions myInstance;
 
     public FileController(
         ApplicationDbContext dbContext,
@@ -33,7 +35,8 @@ public class FileController : ControllerBase
         FileValidationService validationService,
         ShortCodeService shortCodeService,
         MetadataStripperService metadataStripper,
-        ILogger<FileController> logger)
+        ILogger<FileController> logger,
+        IOptions<InstanceOptions> instance)
     {
         myDbContext = dbContext;
         myStorageService = storageService;
@@ -41,6 +44,7 @@ public class FileController : ControllerBase
         myShortCodeService = shortCodeService;
         myMetadataStripper = metadataStripper;
         myLogger = logger;
+        myInstance = instance.Value;
     }
 
     [HttpPost("upload")]
@@ -79,6 +83,7 @@ public class FileController : ControllerBase
 
             // The original file name is never persisted: names often contain personal details
             // ("passport_jane_doe.jpg"). The browser keeps the real name in its local history.
+            var deleteToken = Guid.NewGuid();
             var uploadedFile = new UploadedFile
             {
                 Id = Guid.NewGuid(),
@@ -86,9 +91,9 @@ public class FileController : ControllerBase
                 FileName = shortCode + extension,
                 FileExtension = extension,
                 ContentType = FileValidationService.GetContentType(extension),
-                DeleteToken = Guid.NewGuid(),
+                DeleteTokenHash = DeleteTokenHasher.Hash(deleteToken),
                 UploadedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(30)
+                ExpiresAt = DateTime.UtcNow.AddDays(myInstance.RetentionDays)
             };
 
             var dataStream = stripResult.Stream;
@@ -125,10 +130,10 @@ public class FileController : ControllerBase
             {
                 success = true,
                 url = $"{baseUrl}/{uploadedFile.ShortCode}",
-                deletionURL = $"{baseUrl}/delete/{uploadedFile.DeleteToken}",
+                deletionURL = $"{baseUrl}/delete/{deleteToken}",
                 fileName = file.FileName, // echoed back only, not stored
                 shortCode = uploadedFile.ShortCode,
-                deleteToken = uploadedFile.DeleteToken,
+                deleteToken,
                 fileExtension = uploadedFile.FileExtension,
                 fileSize = uploadedFile.FileSizeBytes,
                 uploadedAt = uploadedFile.UploadedAt,
@@ -211,8 +216,9 @@ public class FileController : ControllerBase
     {
         try
         {
+            var tokenHash = DeleteTokenHasher.Hash(deleteToken);
             var file = await myDbContext.UploadedFiles
-                .FirstOrDefaultAsync(f => f.DeleteToken == deleteToken);
+                .FirstOrDefaultAsync(f => f.DeleteTokenHash == tokenHash);
 
             if (file == null)
             {
@@ -244,7 +250,7 @@ public class FileController : ControllerBase
     public IActionResult DownloadShareXConfig()
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
-        var json = JsonSerializer.Serialize(ShareXConfigBuilder.Build(baseUrl), new JsonSerializerOptions { WriteIndented = true });
+        var json = JsonSerializer.Serialize(ShareXConfigBuilder.Build(baseUrl, myInstance.Name), new JsonSerializerOptions { WriteIndented = true });
         var safeHost = new string(Request.Host.Host.Where(c => char.IsLetterOrDigit(c) || c is '.' or '-').ToArray());
         return File(System.Text.Encoding.UTF8.GetBytes(json), "application/json", $"{safeHost}-sharex.sxcu");
     }

@@ -33,8 +33,10 @@ public class UploadedFile
     [AllowNull]
     public string? StoragePath { get; set; } = null;
         
+    // SHA-256 hex of the delete token; the token itself is only ever given to the uploader.
     [Required]
-    public Guid DeleteToken { get; set; }
+    [MaxLength(64)]
+    public string DeleteTokenHash { get; set; } = string.Empty;
         
     [Required]
     public DateTime UploadedAt { get; set; }

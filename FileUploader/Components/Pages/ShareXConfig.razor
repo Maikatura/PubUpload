@@ -1,7 +1,10 @@
 @page "/p/sharex"
 @using System.Text.Json
+@using FileUploader.Models
 @using FileUploader.Services
+@using Microsoft.Extensions.Options
 @inject NavigationManager Navigation
+@inject IOptions<InstanceOptions> Instance
 
 <PageTitle>ShareX Config</PageTitle>
 
@@ -10,7 +13,7 @@
         <div class="section-header">
             <h1 class="section-title">ShareX Integration</h1>
         </div>
-        <p class="section-desc">Import this configuration profile into ShareX to upload screenshots and files directly to Gock.</p>
+        <p class="section-desc">Import this configuration profile into ShareX to upload screenshots and files directly to @Instance.Value.Name.</p>
     </div>
 
     <div class="info-section">
@@ -22,7 +25,7 @@
             <li>Open ShareX and navigate to <code>Destinations &rarr; Custom uploader settings</code></li>
             <li>Click <code>Import &rarr; From file</code></li>
             <li>Select the downloaded <code>.sxcu</code> file</li>
-            <li>Set Gock as your default upload destination</li>
+            <li>Set @Instance.Value.Name as your default upload destination</li>
         </ol>
 
         <a href="/download-config" class="download-btn" download>
@@ -44,7 +47,7 @@
     protected override void OnInitialized()
     {
         var baseUrl = Navigation.BaseUri.TrimEnd('/');
-        myConfigJson = JsonSerializer.Serialize(ShareXConfigBuilder.Build(baseUrl), new JsonSerializerOptions
+        myConfigJson = JsonSerializer.Serialize(ShareXConfigBuilder.Build(baseUrl, Instance.Value.Name), new JsonSerializerOptions
         {
             WriteIndented = true
         });

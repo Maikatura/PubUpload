@@ -33,8 +33,10 @@ namespace FileUploader.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("DeleteToken")
-                        .HasColumnType("uuid");
+                    b.Property<string>("DeleteTokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<int>("DownloadCount")
                         .HasColumnType("integer");
@@ -68,7 +70,8 @@ namespace FileUploader.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeleteToken");
+                    b.HasIndex("DeleteTokenHash")
+                        .IsUnique();
 
                     b.HasIndex("ExpiresAt");
 

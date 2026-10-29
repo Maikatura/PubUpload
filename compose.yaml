@@ -12,6 +12,12 @@ services:
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - FileStorage__Path=/app/uploads
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING:?Set DB_CONNECTION_STRING in .env}
+      - Cors__AllowedOrigins=${CORS_ALLOWED_ORIGINS:-}
+      - Instance__Name=${INSTANCE_NAME:-PubUpload}
+      - Instance__Tagline=${INSTANCE_TAGLINE:-Anonymous file hosting}
+      - Instance__Icon=${INSTANCE_ICON:-📤}
+      - Instance__FooterText=${INSTANCE_FOOTER_TEXT:-anonymous file hosting}
+      - Instance__RetentionDays=${INSTANCE_RETENTION_DAYS:-30}
     volumes:
       - uploads_data:/app/uploads:rw
     healthcheck:

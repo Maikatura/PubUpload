@@ -21,8 +21,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.ShortCode)
                 .IsUnique()
                 .HasFilter("\"ShortCode\" IS NOT NULL");
-            // ✅ UNIQUE INDEX
-            entity.HasIndex(e => e.DeleteToken);
+            entity.HasIndex(e => e.DeleteTokenHash).IsUnique();
             entity.HasIndex(e => e.ExpiresAt);
             entity.HasIndex(e => e.UploadedAt);
         });

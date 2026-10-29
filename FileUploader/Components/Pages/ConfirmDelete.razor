@@ -59,6 +59,8 @@ else if (isNotFound)
 @code {
     [Parameter] public Guid DeleteToken { get; set; }
 
+    private string DeleteTokenHash => DeleteTokenHasher.Hash(DeleteToken);
+
     private bool isLoading = true;
     private bool isConfirmed = false;
     private bool isValid = false;
@@ -74,7 +76,7 @@ else if (isNotFound)
         try
         {
             var file = await DbContext.UploadedFiles
-                .FirstOrDefaultAsync(f => f.DeleteToken == DeleteToken);
+                .FirstOrDefaultAsync(f => f.DeleteTokenHash == DeleteTokenHash);
 
             if (file == null)
             {
@@ -103,7 +105,7 @@ else if (isNotFound)
         try
         {
             var file = await DbContext.UploadedFiles
-                .FirstOrDefaultAsync(f => f.DeleteToken == DeleteToken);
+                .FirstOrDefaultAsync(f => f.DeleteTokenHash == DeleteTokenHash);
 
             if (file == null)
             {

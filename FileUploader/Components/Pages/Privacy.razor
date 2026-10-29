@@ -1,4 +1,7 @@
 ﻿@page "/p/privacy"
+@using FileUploader.Models
+@using Microsoft.Extensions.Options
+@inject IOptions<InstanceOptions> Instance
 
 <PageTitle>Privacy Policy</PageTitle>
 
@@ -7,12 +10,12 @@
         <div class="section-header">
             <h1 class="section-title">Privacy Policy</h1>
         </div>
-        <p class="section-meta">Last updated: September 18, 2026</p>
+        <p class="section-meta">Last updated: September 18, 2026 - View code on <a href="https://github.com/maikatura/PubUpload" target="_blank ">github</a></p>
     </div>
 
     <div class="info-section">
         <h2 class="section-subtitle">1. Introduction</h2>
-        <p class="section-text">Gock Uploader operates a file hosting service that allows users to upload and share files. This Privacy Notice explains how we collect, use, and disclose information when you use our service.</p>
+        <p class="section-text">@Instance.Value.Name operates a file hosting service that allows users to upload and share files. This Privacy Notice explains how we collect, use, and disclose information when you use our service.</p>
     </div>
 
     <div class="info-section">
@@ -32,7 +35,7 @@
         <h2 class="section-subtitle">3. Upload Limits</h2>
         <ul class="section-list">
             <li><strong>Maximum File Size:</strong> 100 MB per upload.</li>
-            <li><strong>Storage Duration:</strong> All files are stored for a maximum of 30 days, then automatically deleted.</li>
+            <li><strong>Storage Duration:</strong> All files are stored for a maximum of @Instance.Value.RetentionDays days, then automatically deleted.</li>
         </ul>
     </div>
 
@@ -59,7 +62,7 @@
         <h2 class="section-subtitle">6. Data Retention &amp; Deletion</h2>
         <ul class="section-list">
             <li><strong>No Logs:</strong> Server logs do not contain file names, URLs, or IP addresses.</li>
-            <li><strong>Automatic Deletion:</strong> After 30 days, the file and all associated metadata are permanently deleted.</li>
+            <li><strong>Automatic Deletion:</strong> After @Instance.Value.RetentionDays days, the file and all associated metadata are permanently deleted.</li>
             <li><strong>Local Upload History:</strong> The list of your uploads is stored in your browser&rsquo;s local storage. Deleting your browser data removes it; we have no copy of it.</li>
             <li><strong>Manual Deletion:</strong> Users may delete their files at any time. Only that specific file's data is removed.</li>
             <li><strong>Independent Records:</strong> Deleting one file does not affect data from other uploads.</li>
@@ -70,12 +73,12 @@
     <div class="info-section">
         <h2 class="section-subtitle">7. Limitation of Liability</h2>
         <div class="callout callout-danger">
-            <strong>Gock operates under a strict "No Responsibility" policy regarding user-generated content.</strong>
+            <strong>@Instance.Value.Name operates under a strict "No Responsibility" policy regarding user-generated content.</strong>
         </div>
         <ul class="section-list">
             <li>You are solely responsible for the content you upload.</li>
             <li>We are not liable for any damages, losses, or consequences arising from your uploads.</li>
-            <li>You agree to indemnify Gock from any claims resulting from your use of the service.</li>
+            <li>You agree to indemnify @Instance.Value.Name from any claims resulting from your use of the service.</li>
         </ul>
     </div>
 

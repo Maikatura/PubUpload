@@ -24,7 +24,10 @@ builder.Services.AddServerSideBlazor().AddHubOptions(options =>
 });
 builder.Services.AddControllers();
 
-var corsOrigins = new List<string> { "https://i.pawjobs.dev", "https://gock.live" };
+// Comma-separated, e.g. "https://a.example,https://b.example". Empty means same-origin only.
+var corsOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? string.Empty)
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    .ToList();
 if (builder.Environment.IsDevelopment())
 {
     corsOrigins.AddRange(new[] { "http://localhost:5154", "http://localhost:5000" });
@@ -43,6 +46,8 @@ builder.Services.AddCors(options =>
 // Configure PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<InstanceOptions>(builder.Configuration.GetSection(InstanceOptions.SectionName));
 
 // Register custom services
 builder.Services.AddScoped<FileValidationService>();
