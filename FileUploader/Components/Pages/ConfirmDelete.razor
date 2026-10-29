@@ -1,0 +1,144 @@
+﻿@page "/delete/{DeleteToken:guid}"
+@using FileUploader.Data
+@using FileUploader.Services
+@using Microsoft.EntityFrameworkCore
+@inject NavigationManager Nav
+@inject ApplicationDbContext DbContext
+@inject FileStorageService StorageService
+
+<PageTitle>Delete File</PageTitle>
+
+@if (isLoading)
+{
+    <div class="delete-card">
+        <div class="spinner"></div>
+        <h3>Verifying token...</h3>
+    </div>
+}
+else if (isConfirmed && isValid)
+{
+    <div class="delete-card">
+        <div class="icon-container">
+            <div class="icon-large icon-success">&#x2713;</div>
+        </div>
+        <h3>File deleted</h3>
+        <p>The file has been permanently removed.</p>
+        <button class="btn btn-home" @onclick="GoHome">Back to Home</button>
+    </div>
+}
+else if (isValid)
+{
+    <div class="delete-card">
+        <div class="icon-container">
+            <div class="icon-large icon-warning">&#x26A0;</div>
+        </div>
+        <h3>Confirm deletion</h3>
+        <p>
+            Are you sure you want to permanently delete this file?<br>
+            <strong>This action cannot be undone.</strong>
+        </p>
+        <div class="btn-group">
+            <button class="btn btn-primary" @onclick="ConfirmDeletion">Yes, Delete</button>
+            <button class="btn btn-secondary" @onclick="CancelDeletion">Cancel</button>
+        </div>
+    </div>
+}
+else if (isNotFound)
+{
+    <div class="delete-card">
+        <div class="icon-container">
+            <div class="icon-large icon-error">&#x2715;</div>
+        </div>
+        <h3>Invalid link</h3>
+        <p>This deletion link is invalid, expired, or the file has already been deleted.</p>
+        <button class="btn btn-home" @onclick="GoHome">Back to Home</button>
+    </div>
+}
+
+
+@code {
+    [Parameter] public Guid DeleteToken { get; set; }
+
+    private bool isLoading = true;
+    private bool isConfirmed = false;
+    private bool isValid = false;
+    private bool isNotFound = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckDeleteToken();
+    }
+
+    private async Task CheckDeleteToken()
+    {
+        try
+        {
+            var file = await DbContext.UploadedFiles
+                .FirstOrDefaultAsync(f => f.DeleteToken == DeleteToken);
+
+            if (file == null)
+            {
+                isNotFound = true;
+            }
+            else
+            {
+                isValid = true;
+            }
+        }
+        catch
+        {
+            isNotFound = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ConfirmDeletion()
+    {
+        isLoading = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var file = await DbContext.UploadedFiles
+                .FirstOrDefaultAsync(f => f.DeleteToken == DeleteToken);
+
+            if (file == null)
+            {
+                isNotFound = true;
+                isLoading = false;
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(file.StoragePath))
+            {
+                StorageService.DeleteFile(file.StoragePath);
+            }
+
+            DbContext.UploadedFiles.Remove(file);
+
+            await DbContext.SaveChangesAsync();
+            isConfirmed = true;
+        }
+        catch
+        {
+            isNotFound = true;
+        }
+
+        isLoading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CancelDeletion()
+    {
+        GoHome();
+    }
+
+    private void GoHome()
+    {
+        Nav.NavigateTo("/");
+    }
+}

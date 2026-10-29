@@ -1,0 +1,27 @@
+﻿version: '3.8'
+services:
+  fileuploader:
+    image: fileuploader
+    build:
+      context: .
+      dockerfile: FileUploader/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - FileStorage__Path=/app/uploads
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING:?Set DB_CONNECTION_STRING in .env}
+    volumes:
+      - uploads_data:/app/uploads:rw
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      
+      
+volumes:
+  uploads_data:
+    driver: local

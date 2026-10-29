@@ -1,0 +1,39 @@
+@page "/"
+@using FileUploader.Components
+@using Microsoft.AspNetCore.Components.Web
+@namespace FileUploader.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gock - Secure file hosting with instant sharing" />
+    <meta name="theme-color" content="#0a0a0c" />
+    <base href="~/" />
+    <link rel="icon" href="favicon.png">
+    <title>Gock - Secure File Hosting</title>
+    <link rel="stylesheet" href="app.css" asp-append-version="true" />
+    <link rel="modulepreload" href="js/uploader.js" asp-append-version="true" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body>
+<component type="typeof(App)" render-mode="ServerPrerendered" />
+
+<div id="blazor-error-ui">
+    <environment include="Staging,Production">
+        An error has occurred. This application may no longer respond until reloaded.
+    </environment>
+    <environment include="Development">
+        An unhandled exception has occurred. See browser dev tools for details.
+    </environment>
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">&#x2715;</a>
+</div>
+
+<script src="_framework/blazor.server.js" autostart="false"></script>
+<script src="js/boot.js" asp-append-version="true"></script>
+<script type="module" src="js/uploader.js" asp-append-version="true"></script>
+</body>
+</html>

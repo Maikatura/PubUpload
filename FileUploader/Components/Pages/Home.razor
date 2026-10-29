@@ -1,0 +1,21 @@
+@page "/"
+@using FileUploader.Models
+@using FileUploader.Services
+
+<PageTitle>Uploader</PageTitle>
+
+<div class="main-viewport" id="uploader-root"
+     data-max-bytes="@FileSizeModel.MaxFileSizeBytes"
+     data-allowed="@string.Join(",", FileValidationService.AllowedExtensions)">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Upload files">
+        <div class="drop-prompt">
+            <div class="drop-prompt-icon">&#x2B07;</div>
+            <span class="drop-prompt-text">Drop files here or click to browse</span>
+            <span class="drop-prompt-hint">Max 100 MB &middot; Images, Video, Audio, PDF, Text &middot; Paste (Ctrl+V)</span>
+            <span class="drop-prompt-status" id="drop-status" aria-live="polite"></span>
+        </div>
+    </div>
+
+    <div id="upload-queue"></div>
+    <div id="upload-history"></div>
+</div>

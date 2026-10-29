@@ -1,0 +1,52 @@
+@page "/p/sharex"
+@using System.Text.Json
+@using FileUploader.Services
+@inject NavigationManager Navigation
+
+<PageTitle>ShareX Config</PageTitle>
+
+<div class="info-page">
+    <div class="info-section">
+        <div class="section-header">
+            <h1 class="section-title">ShareX Integration</h1>
+        </div>
+        <p class="section-desc">Import this configuration profile into ShareX to upload screenshots and files directly to Gock.</p>
+    </div>
+
+    <div class="info-section">
+        <div class="section-header">
+            <h2 class="section-subtitle">Setup Steps</h2>
+        </div>
+        <ol class="steps-list">
+            <li>Download the config file using the button below</li>
+            <li>Open ShareX and navigate to <code>Destinations &rarr; Custom uploader settings</code></li>
+            <li>Click <code>Import &rarr; From file</code></li>
+            <li>Select the downloaded <code>.sxcu</code> file</li>
+            <li>Set Gock as your default upload destination</li>
+        </ol>
+
+        <a href="/download-config" class="download-btn" download>
+            Download Config (.sxcu)
+        </a>
+    </div>
+
+    <div class="info-section">
+        <div class="section-header">
+            <h2 class="section-subtitle">Config Preview</h2>
+        </div>
+        <pre class="code-preview">@myConfigJson</pre>
+    </div>
+</div>
+
+@code {
+    private string myConfigJson = "";
+
+    protected override void OnInitialized()
+    {
+        var baseUrl = Navigation.BaseUri.TrimEnd('/');
+        myConfigJson = JsonSerializer.Serialize(ShareXConfigBuilder.Build(baseUrl), new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+    }
+}
